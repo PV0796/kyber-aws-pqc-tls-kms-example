@@ -110,7 +110,7 @@ public class AwsKmsPqTlsExample {
             // Generating a key pair for receiver            
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KEM_ALGORITHM, PROVIDER);
             keyPairGenerator.initialize(KEM_PARAMETER_SPEC, new SecureRandom());
-            KeyPair keyPair = generateKeyPair();
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
             System.out.println("KEM Algorithm: " + keyPair.getPublic().getAlgorithm());
             System.out.println("Public Key length: " + keyPair.getPublic().getEncoded().length);
