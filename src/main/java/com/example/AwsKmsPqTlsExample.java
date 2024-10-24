@@ -190,6 +190,9 @@ public class AwsKmsPqTlsExample {
         RSAPublicKey rsaPublicKey = RSAUtils.decodeX509PublicKey(publicKeyBytes);
         byte[] encryptedAesKey = encryptDataWithRSA(rsaPublicKey, keyPair.getPrivate().getEncoded());
 
+        LOG.info(() -> String.format("encryptedkeylength: %s", encryptedAesKey.length));
+        LOG.info(() -> String.format("encryptedkey: %s", encryptedAesKey));
+
         /*
          * Step 4: Import the key material using the CMK ID, wrapped key material, and import token. This is the
          * important call to protect. Your AES key is leaving your computer and traveling over the network wrapped by an
