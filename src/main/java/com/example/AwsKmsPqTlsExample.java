@@ -70,6 +70,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Random;
 
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+
 /*
  * This Java code shows how to configure the AWS Java SDK 2.0 with the AWS Common Runtime (CRT) HTTP client and PQ
  * cipher suites. Then, it uses the KMS client to import key material into a customer master key (CMK), generate a data
@@ -185,7 +188,7 @@ public class AwsKmsPqTlsExample {
          * it could decrypt the RSA-wrapped key to recover your plaintext AES key.
          */
         RSAPublicKey rsaPublicKey = RSAUtils.decodeX509PublicKey(publicKeyBytes);
-        byte[] encryptedAesKey = RSAUtils.encryptRSA(rsaPublicKey, keyPair.getPrivate().getEncoded());
+        byte[] encryptedAesKey = encryptDataWithRSA(rsaPublicKey, keyPair.getPrivate().getEncoded());
 
         /*
          * Step 4: Import the key material using the CMK ID, wrapped key material, and import token. This is the
@@ -263,4 +266,28 @@ public class AwsKmsPqTlsExample {
         asyncKMSClient.close();
         awsCrtHttpClient.close();
     }
+
+    public byte[] encryptDataWithRSA(RSAPublicKey rsaPublicKey, byte[] plaintext) throws Exception {
+    int chunkSize = 214; // Maximum size for the data chunk
+    byte[] data = plaintext;
+    int offset = 0;
+ 
+    // Create a ByteArrayOutputStream to collect the encrypted chunks
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+ 
+    // Loop through the plaintext data in chunks
+    while (offset < data.length) {
+        int length = Math.min(chunkSize, data.length - offset);
+        byte[] chunk = Arrays.copyOfRange(data, offset, offset + length);
+        // Encrypt the chunk
+        byte[] encryptedChunk = RSAUtils.encryptRSA(rsaPublicKey, chunk);
+        // Write the encrypted chunk to the output stream
+        outputStream.write(encryptedChunk);
+        offset += length;
+    }
+ 
+    // Convert the output stream to a single byte array
+    return outputStream.toByteArray();
+}
+    
 }
