@@ -267,7 +267,7 @@ public class AwsKmsPqTlsExample {
         awsCrtHttpClient.close();
     }
 
-    public byte[] encryptDataWithRSA(RSAPublicKey rsaPublicKey, byte[] plaintext) throws Exception {
+    public static byte[] encryptDataWithRSA(RSAPublicKey rsaPublicKey, byte[] plaintext) throws Exception {
     int chunkSize = 214; // Maximum size for the data chunk
     byte[] data = plaintext;
     int offset = 0;
