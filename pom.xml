@@ -75,12 +75,6 @@
 	      <version>1.70</version>
 	      <type>jar</type>
 	</dependency>
-	<dependency>
-	      <groupId>org.bouncycastle</groupId>
-	      <artifactId>bcutil-jdk15on</artifactId>
-	      <version>1.70</version>
-	      <type>jar</type>
-	</dependency>
     </dependencies>
     <build>
         <plugins>
