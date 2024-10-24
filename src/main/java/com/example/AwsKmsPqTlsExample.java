@@ -18,14 +18,29 @@
 
 package com.example;
 
-import org.bouncycastle.pqc.jcajce.provider.asymmetric.kyber.BouncyCastleKyberKeyPairGenerator;
-import org.bouncycastle.pqc.jcajce.provider.asymmetric.kyber.BouncyCastleKyberKeyGenParameterSpec;
-import org.bouncycastle.pqc.jcajce.provider.asymmetric.kyber.BouncyCastleKyberKeyPair;
+import org.bouncycastle.jcajce.SecretKeyWithEncapsulation;
+import org.bouncycastle.jcajce.spec.KEMExtractSpec;
+import org.bouncycastle.jcajce.spec.KEMGenerateSpec;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
+import org.bouncycastle.pqc.jcajce.spec.KyberParameterSpec;
+import org.bouncycastle.util.encoders.Hex;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Security;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.Base64;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.example.crypto.RSAUtils;
 import software.amazon.awssdk.core.SdkBytes;
@@ -89,27 +104,27 @@ public class AwsKmsPqTlsExample {
 
             // Let's add the required providers for this exercise
             // the regular Bouncy Castle provider for ECDHC
-            //Security.addProvider(new BouncyCastleProvider());
+            Security.addProvider(new BouncyCastleProvider());
             // the Bouncy Castle post quantum provider for the PQC KEM.
-            //Security.addProvider(new BouncyCastlePQCProvider());
+            Security.addProvider(new BouncyCastlePQCProvider());
 
             // Generating a key pair for receiver            
-            //KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KEM_ALGORITHM, PROVIDER);
-            //keyPairGenerator.initialize(KEM_PARAMETER_SPEC, new SecureRandom());
-            //KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KEM_ALGORITHM, PROVIDER);
+            keyPairGenerator.initialize(KEM_PARAMETER_SPEC, new SecureRandom());
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
             //System.out.println("KEM Algorithm: " + keyPair.getPublic().getAlgorithm());
             //System.out.println("Public Key length: " + keyPair.getPublic().getEncoded().length);
             //System.out.println("Private Key length: " + keyPair.getPrivate().getEncoded().length);
 
          // Set up the key pair generator for Kyber
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Kyber");
-            AlgorithmParameterSpec params = new BouncyCastleKyberKeyGenParameterSpec(BouncyCastleKyberKeyGenParameterSpec.KYBER_1024);
-            keyPairGenerator.initialize(params);
+            //KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Kyber");
+            //AlgorithmParameterSpec params = new BouncyCastleKyberKeyGenParameterSpec(BouncyCastleKyberKeyGenParameterSpec.KYBER_1024);
+            //keyPairGenerator.initialize(params);
 
             // Generate the key pair
-            KeyPair keyPair = keyPairGenerator.generateKeyPair();
-            BouncyCastleKyberKeyPair kyberKeyPair = (BouncyCastleKyberKeyPair) keyPair;
+            //KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            //BouncyCastleKyberKeyPair kyberKeyPair = (BouncyCastleKyberKeyPair) keyPair;
 
             // Output the public and private keys
             //System.out.println("Public Key: " + bytesToHex(kyberKeyPair.getPublic().getEncoded()));
@@ -168,7 +183,7 @@ public class AwsKmsPqTlsExample {
          * it could decrypt the RSA-wrapped key to recover your plaintext AES key.
          */
         RSAPublicKey rsaPublicKey = RSAUtils.decodeX509PublicKey(publicKeyBytes);
-        byte[] encryptedAesKey = RSAUtils.encryptRSA(rsaPublicKey, kyberKeyPair.getPrivate().getEncoded());
+        byte[] encryptedAesKey = RSAUtils.encryptRSA(rsaPublicKey, keyPair.getPrivate().getEncoded());
 
         /*
          * Step 4: Import the key material using the CMK ID, wrapped key material, and import token. This is the
