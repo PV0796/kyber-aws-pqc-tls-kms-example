@@ -23,7 +23,17 @@
 
     <groupId>software.amazon.examples</groupId>
     <artifactId>aws-kms-pq-tls-example</artifactId>
+    <name>Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs</name>
     <version>1.0</version>
+  <description>The Bouncy Castle Java APIs for CMS, PKCS, EAC, TSP, CMP, CRMF, OCSP, and certificate generation. This jar contains APIs for JDK 1.5 and up. The APIs can be used in conjunction with a JCE/JCA provider such as the one provided with the Bouncy Castle Cryptography APIs.</description>
+  <url>https://www.bouncycastle.org/java.html</url>
+  <licenses>
+    <license>
+      <name>Bouncy Castle Licence</name>
+      <url>https://www.bouncycastle.org/licence.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
     <dependencyManagement>
         <dependencies>
             <dependency><!-- This controls the version for the rest of the SDK: services, logging, request signing -->
@@ -59,31 +69,18 @@
             <artifactId>commons-codec</artifactId>
             <version>1.10</version>
         </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk18on</artifactId>
-            <version>1.71</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.71</version>
-        </dependency>
-        <dependency>
-	        <groupId>org.bouncycastle</groupId>
-	        <artifactId>bcprov-ext-jdk15to18</artifactId>
-	        <version>1.75</version>
-        </dependency>
-	<dependency>
-	    <groupId>org.bouncycastle</groupId>
-	    <artifactId>bcpqc-jdk15on</artifactId>
-	    <version>1.70</version> <!-- Update to the latest version if available -->
+         <dependency>
+	      <groupId>org.bouncycastle</groupId>
+	      <artifactId>bcprov-jdk15on</artifactId>
+	      <version>1.70</version>
+	      <type>jar</type>
 	</dependency>
-    	<dependency>
-	        <groupId>org.bouncycastle</groupId>
-	        <artifactId>bcpkix-jdk15on</artifactId>
-	        <version>1.70</version> <!-- Check for the latest version -->
-    	</dependency>
+	<dependency>
+	      <groupId>org.bouncycastle</groupId>
+	      <artifactId>bcutil-jdk15on</artifactId>
+	      <version>1.70</version>
+	      <type>jar</type>
+	</dependency>
     </dependencies>
     <build>
         <plugins>
