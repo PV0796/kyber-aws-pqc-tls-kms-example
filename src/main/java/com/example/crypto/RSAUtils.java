@@ -45,7 +45,7 @@ public class RSAUtils {
             /*
              * This must match what KMS expects which was chosen in the call to GetParametersForImport
              */
-            final Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+            final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             final byte[] ciphertext = cipher.doFinal(plaintext);
             return ciphertext;
