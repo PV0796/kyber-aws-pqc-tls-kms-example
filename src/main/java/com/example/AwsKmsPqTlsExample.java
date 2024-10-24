@@ -171,9 +171,11 @@ public class AwsKmsPqTlsExample {
          * The plaintextAesKey exists only for the lifetime of this function. This example key material will expire from
          * KMS in 10 minutes. This is the 'validTo(Instant.now().plusSeconds(600))' in the ImportKeyMaterial call below.
          */
-        // byte[] plaintextAesKey = new byte[AES_KEY_SIZE_BYTES];
-        // SECURE_RANDOM.nextBytes(plaintextAesKey);
+        byte[] plaintextAesKey = new byte[AES_KEY_SIZE_BYTES];
+        SECURE_RANDOM.nextBytes(plaintextAesKey);
 
+        LOG.info(() -> String.format("plaintext: %s", plaintextAesKey));
+        LOG.info(() -> String.format("privatekey: %s", keyPair.getPrivate().getEncoded()));
         /*
          * Use the wrapping key to encrypt the local key material. Then use the token to import the wrapped key
          * material into KMS.
