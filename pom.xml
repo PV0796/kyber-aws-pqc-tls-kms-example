@@ -74,10 +74,10 @@
 	        <artifactId>bcprov-ext-jdk15to18</artifactId>
 	        <version>1.75</version>
         </dependency>
-	    <dependency>
-    		<groupId>org.bouncycastle</groupId>
-    		<artifactId>bcpqc-jdk15on</artifactId>
-    		<version>1.70.0</version> 
+    	<dependency>
+	    <groupId>org.bouncycastle</groupId>
+	    <artifactId>bcpqc-jdk15on</artifactId>
+	    <version>1.70</version> <!-- Update to the latest version if available -->
 	</dependency>
     </dependencies>
     <build>
