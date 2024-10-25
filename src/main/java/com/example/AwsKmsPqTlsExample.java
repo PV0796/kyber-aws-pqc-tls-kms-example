@@ -236,7 +236,7 @@ public class AwsKmsPqTlsExample {
          * Step 3: Decrypt the encrypted data key.
          */
         byte[] plaintextDataKey = generateDataKeyResponse.plaintext().asByteArray();
-        byte[] ciphertextDataKey = generateDataKeyResponse.ciphertextBlob().asByteArray();
+        //byte[] ciphertextDataKey = generateDataKeyResponse.ciphertextBlob().asByteArray();
         SdkBytes encryptedDataKey = generateDataKeyResponse.ciphertextBlob();
         DecryptRequest decryptRequest = DecryptRequest.builder()
                 .ciphertextBlob(encryptedDataKey)
@@ -249,6 +249,8 @@ public class AwsKmsPqTlsExample {
         SecretKeySpec secretKeySpec = new SecretKeySpec(plaintextDataKey, "AES");
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
         byte[] encryptedData = cipher.doFinal(keyPair.getPrivate().getEncoded());
+
+        LOG.info(() -> String.format("encrypted data: %s", encryptedData));
 
         // Step 4: Store the encrypted data in S3
         S3Client s3Client = S3Client.builder()
@@ -269,7 +271,7 @@ public class AwsKmsPqTlsExample {
         s3Client.putObject(putRequest, Paths.get("encrypted_data.bin"));
 
         // Optionally, store the ciphertext data key in S3 as well
-        Files.write(Paths.get("ciphertext_key.bin"), ciphertextDataKey);
+        Files.write(Paths.get("ciphertext_key.bin"), encryptedDataKey);
         putRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key("ciphertext_key.bin")
