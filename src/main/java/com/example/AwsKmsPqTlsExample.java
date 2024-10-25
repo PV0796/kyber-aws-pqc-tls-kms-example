@@ -104,6 +104,11 @@ public class AwsKmsPqTlsExample {
     private static final String MODE_PADDING = "AES/ECB/PKCS5Padding"; // ECB mode with PKCS5 padding
 
     public static void main(String[] args) throws Exception {
+
+        String keyId = "your-cmk-id"; // Replace with your CMK ID
+        String bucketName = "your-bucket-name"; // Replace with your S3 bucket name
+        String objectKey = "your-object-key"; // The key for the S3 object
+        
         /*
          * Set up a PQ TLS HTTP client that will be used in the rest of the example. This will optimistically enable
          * hybrid post-quantum TLS if post-quantum algorithms are supported on the current platform, otherwise the
