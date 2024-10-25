@@ -116,25 +116,6 @@ public class AwsKmsPqTlsExample {
             keyPairGenerator.initialize(KEM_PARAMETER_SPEC, new SecureRandom());
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
-            //System.out.println("KEM Algorithm: " + keyPair.getPublic().getAlgorithm());
-            //System.out.println("Public Key length: " + keyPair.getPublic().getEncoded().length);
-            //System.out.println("Private Key length: " + keyPair.getPrivate().getEncoded().length);
-
-         // Set up the key pair generator for Kyber
-            //KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("Kyber");
-            //AlgorithmParameterSpec params = new BouncyCastleKyberKeyGenParameterSpec(BouncyCastleKyberKeyGenParameterSpec.KYBER_1024);
-            //keyPairGenerator.initialize(params);
-
-            // Generate the key pair
-            //KeyPair keyPair = keyPairGenerator.generateKeyPair();
-            //BouncyCastleKyberKeyPair kyberKeyPair = (BouncyCastleKyberKeyPair) keyPair;
-
-            // Output the public and private keys
-            //System.out.println("Public Key: " + bytesToHex(kyberKeyPair.getPublic().getEncoded()));
-            //System.out.println("Secret Key: " + bytesToHex(kyberKeyPair.getPrivate().getEncoded()));
-
-
-
         /*
          * Import key material workflow with hybrid post-quantum TLS
          *
@@ -188,7 +169,7 @@ public class AwsKmsPqTlsExample {
          * it could decrypt the RSA-wrapped key to recover your plaintext AES key.
          */
         RSAPublicKey rsaPublicKey = RSAUtils.decodeX509PublicKey(publicKeyBytes);
-        byte[] encryptedAesKey = encryptDataWithRSA(rsaPublicKey, keyPair.getPrivate().getEncoded());
+        byte[] encryptedAesKey = encryptDataWithRSA(rsaPublicKey, plaintextAesKey);
 
         LOG.info(() -> String.format("encryptedkeylength: %s", encryptedAesKey.length));
         LOG.info(() -> String.format("encryptedkey: %s", encryptedAesKey));
@@ -237,12 +218,51 @@ public class AwsKmsPqTlsExample {
         /*
          * Step 3: Decrypt the encrypted data key.
          */
+        byte[] plaintextDataKey = generateDataKeyResponse.plaintext().asByteArray();
         SdkBytes encryptedDataKey = generateDataKeyResponse.ciphertextBlob();
         DecryptRequest decryptRequest = DecryptRequest.builder()
                 .ciphertextBlob(encryptedDataKey)
                 .build();
         LOG.info(() -> "Decrypting a KMS ciphertext. Using PQ TLS to protect the plaintext data in transit");
         DecryptResponse decryptResponse = asyncKMSClient.decrypt(decryptRequest).get();
+
+         // Step 3: Encrypt the data
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(plaintextDataKey, "AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+        byte[] encryptedData = cipher.doFinal(keyPair.getPrivate().getEncoded().getBytes());
+
+        // Step 4: Store the encrypted data in S3
+        S3Client s3Client = S3Client.builder()
+                .region(Region.US_EAST_1) // Set your region
+                .credentialsProvider(ProfileCredentialsProvider.create())
+                .build();
+
+        // Store the encrypted data
+        PutObjectRequest putRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .build();
+
+        // Write encrypted data to a temporary file
+        Files.write(Paths.get("encrypted_data.bin"), encryptedData);
+
+        // Upload to S3
+        s3Client.putObject(putRequest, Paths.get("encrypted_data.bin"));
+
+        // Optionally, store the ciphertext data key in S3 as well
+        Files.write(Paths.get("ciphertext_key.bin"), ciphertextDataKey);
+        putRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key("ciphertext_key.bin")
+                .build();
+        s3Client.putObject(putRequest, Paths.get("ciphertext_key.bin"));
+
+        // Clean up
+        Files.deleteIfExists(Paths.get("encrypted_data.bin"));
+        Files.deleteIfExists(Paths.get("ciphertext_key.bin"));
+        kmsClient.close();
+        s3Client.close();
 
         /*
          * Step 4: Use the plaintext data key to decrypt your client-side data. You can get the plaintext data key by
