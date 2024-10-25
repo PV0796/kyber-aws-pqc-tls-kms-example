@@ -104,8 +104,6 @@ public class AwsKmsPqTlsExample {
     private static final String MODE_PADDING = "AES/ECB/PKCS5Padding"; // ECB mode with PKCS5 padding
 
     public static void main(String[] args) throws Exception {
-
-        String keyId = "your-cmk-id"; // Replace with your CMK ID
         String bucketName = "your-bucket-name"; // Replace with your S3 bucket name
         String objectKey = "your-object-key"; // The key for the S3 object
         
