@@ -236,7 +236,7 @@ public class AwsKmsPqTlsExample {
          * Step 3: Decrypt the encrypted data key.
          */
         byte[] plaintextDataKey = generateDataKeyResponse.plaintext().asByteArray();
-        byte[] ciphertextDataKey = dataKeyResponse.ciphertextBlob().asByteArray();
+        byte[] ciphertextDataKey = generateDataKeyResponse.ciphertextBlob().asByteArray();
         SdkBytes encryptedDataKey = generateDataKeyResponse.ciphertextBlob();
         DecryptRequest decryptRequest = DecryptRequest.builder()
                 .ciphertextBlob(encryptedDataKey)
